@@ -1,0 +1,386 @@
+<UserControl x:Class="project.Views.AdminView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:services="clr-namespace:project.Services"
+             xmlns:converters="clr-namespace:project.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="1100"
+             Background="#131314">
+    <UserControl.Resources>
+        <converters:LocalizedMaterialConverter x:Key="LocalizedMaterialConverter" />
+    </UserControl.Resources>
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,30">
+            <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[AdminTitle]}" FontSize="24" FontWeight="Bold" Foreground="#FFFFFF"/>
+        </Grid>
+
+        <TabControl Grid.Row="1" Background="#1F1F20" BorderThickness="0">
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border Name="Border" Padding="20,10" Background="#131314" Margin="0,0,5,0" CornerRadius="5,5,0,0">
+                                    <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center" HorizontalAlignment="Center" ContentSource="Header" Margin="10,2"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="#FFB3B1" />
+                                        <Setter Property="Foreground" Value="#131314" />
+                                        <Setter Property="FontWeight" Value="Bold" />
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="False">
+                                        <Setter Property="Foreground" Value="#E0E0E0" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+
+            <!-- Управление материалами -->
+            <TabItem Header="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[Tab1]}">
+                <Grid Margin="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Background="#131314" CornerRadius="8" Padding="15" Margin="0,0,20,0" BorderBrush="#2A2A2B" BorderThickness="1">
+                        <DataGrid ItemsSource="{Binding Materials}" SelectedItem="{Binding SelectedMaterial}" 
+                                  AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+                                  Background="#131314" Foreground="#E0E0E0" HeadersVisibility="Column" BorderThickness="0" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#2A2A2B">
+                            <DataGrid.Resources>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#1F1F20"/>
+                                    <Setter Property="Foreground" Value="#999999"/>
+                                    <Setter Property="Padding" Value="10"/>
+                                </Style>
+                                <Style TargetType="DataGridRow">
+                                    <Setter Property="Background" Value="#131314"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#2A2A2B"/>
+                                            <Setter Property="Foreground" Value="#FFB3B1"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.Resources>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="Auto"/>
+                                <DataGridTemplateColumn Header="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[Name]}" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock>
+                                                <TextBlock.Text>
+                                                    <MultiBinding Converter="{StaticResource LocalizedMaterialConverter}" ConverterParameter="Title">
+                                                        <Binding Path="." />
+                                                        <Binding Source="{x:Static services:TranslationSource.Instance}" Path="CurrentLanguage" />
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[Category]}" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock>
+                                                <TextBlock.Text>
+                                                    <MultiBinding Converter="{StaticResource LocalizedMaterialConverter}" ConverterParameter="Category">
+                                                        <Binding Path="." />
+                                                        <Binding Source="{x:Static services:TranslationSource.Instance}" Path="CurrentLanguage" />
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[Cost]}" Binding="{Binding Price, StringFormat='{}{0} $'}" Width="Auto"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+
+                    <Border Grid.Column="1" Background="#131314" CornerRadius="8" BorderBrush="#2A2A2B" BorderThickness="1">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="20">
+                                <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[NameRuLbl]}" Foreground="#999999" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding EditTitleRu, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                                
+                                <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[NameEnLbl]}" Foreground="#999999" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding EditTitleEn, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                                
+                                <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[CatRuLbl]}" Foreground="#999999" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding EditCategoryRu, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                                
+                                <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[CatEnLbl]}" Foreground="#999999" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding EditCategoryEn, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                                
+                                <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[PriceLbl]}" Foreground="#999999" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding EditPrice, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                                
+                                <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[StockLbl]}" Foreground="#999999" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding EditStockQuantity, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                                
+                                <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[ImagePathLbl]}" Foreground="#999999" Margin="0,0,0,5"/>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0" Text="{Binding EditImagePath, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,5,0"/>
+                                    <Button Grid.Column="1" Content="..." Command="{Binding PickImageCommand}" Width="30" Cursor="Hand" Height="40"/>
+                                </Grid>
+                                
+                                <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[DescRuLbl]}" Foreground="#999999" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding EditDescriptionRu, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" Height="80" TextWrapping="Wrap" AcceptsReturn="True" VerticalContentAlignment="Top"/>
+                                
+                                <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[DescEnLbl]}" Foreground="#999999" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding EditDescriptionEn, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,20" Height="80" TextWrapping="Wrap" AcceptsReturn="True" VerticalContentAlignment="Top"/>
+                                
+                                <UniformGrid Columns="2" Margin="0,0,0,15">
+                                    <Button Content="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[AddBtn]}" Command="{Binding AddMaterialCommand}" Margin="0,0,5,0" Background="#27AE60" Foreground="White" FontWeight="Bold" Cursor="Hand"/>
+                                    <Button Content="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[UpdateBtn]}" Command="{Binding UpdateMaterialCommand}" Margin="5,0,0,0" Background="#3498DB" Foreground="White" FontWeight="Bold" Cursor="Hand"/>
+                                </UniformGrid>
+                                
+                                <Button Content="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[DeleteBtn]}" Command="{Binding DeleteMaterialCommand}" Background="Transparent" Foreground="#FFB3B1" BorderBrush="#FFB3B1" BorderThickness="1" FontWeight="Bold" Cursor="Hand" Margin="0,0,0,15"/>
+                                
+                                <TextBlock Text="{Binding AdminMaterialMessage}" Foreground="#FFB3B1" FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- Модерация отзывов -->
+            <TabItem Header="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[Tab2]}">
+                <Grid Margin="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Border Grid.Column="0" Background="#131314" CornerRadius="8" Padding="15" Margin="0,0,20,0" BorderBrush="#2A2A2B" BorderThickness="1">
+                        <DataGrid ItemsSource="{Binding PendingReviews}" SelectedItem="{Binding SelectedPendingReview}" 
+                                  AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+                                  Background="#131314" Foreground="#E0E0E0" HeadersVisibility="Column" BorderThickness="0" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#2A2A2B">
+                            <DataGrid.Resources>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#1F1F20"/>
+                                    <Setter Property="Foreground" Value="#999999"/>
+                                    <Setter Property="Padding" Value="10"/>
+                                </Style>
+                                <Style TargetType="DataGridRow">
+                                    <Setter Property="Background" Value="#131314"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#2A2A2B"/>
+                                            <Setter Property="Foreground" Value="#FFB3B1"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.Resources>
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[Product]}" Width="1.5*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock>
+                                                <TextBlock.Text>
+                                                    <MultiBinding Converter="{StaticResource LocalizedMaterialConverter}" ConverterParameter="Title">
+                                                        <Binding Path="Material" />
+                                                        <Binding Source="{x:Static services:TranslationSource.Instance}" Path="CurrentLanguage" />
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[Client]}" Binding="{Binding User.Username}" Width="1*"/>
+                                <DataGridTextColumn Header="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[Rating]}" Binding="{Binding Rating}" Width="Auto"/>
+                                <DataGridTextColumn Header="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[ReviewTxt]}" Binding="{Binding Text}" Width="2*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+
+                    <Border Grid.Column="1" Background="#131314" CornerRadius="8" Padding="20" BorderBrush="#2A2A2B" BorderThickness="1" VerticalAlignment="Top">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[AdminActions]}" FontSize="18" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,0,15"/>
+                            <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[SelectReview]}" Foreground="#999999" TextWrapping="Wrap" Margin="0,0,0,20"/>
+                            
+                            <Button Content="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[ApproveBtn]}" Command="{Binding ApproveReviewCommand}" Background="#27AE60" Foreground="White" FontWeight="Bold" Padding="15" Margin="0,0,0,15" BorderThickness="0" Cursor="Hand"/>
+                            <Button Content="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[RejectBtn]}" Command="{Binding RejectReviewCommand}" Background="Transparent" Foreground="#FFB3B1" BorderBrush="#FFB3B1" BorderThickness="1" FontWeight="Bold" Padding="15" Margin="0,0,0,20" Cursor="Hand"/>
+                            
+                            <TextBlock Text="{Binding AdminReviewMessage}" Foreground="#FFB3B1" FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- Управление заказами -->
+            <TabItem Header="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[Tab3]}">
+                <Grid Margin="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Border Grid.Column="0" Background="#131314" CornerRadius="8" Padding="15" Margin="0,0,20,0" BorderBrush="#2A2A2B" BorderThickness="1">
+                        <DataGrid ItemsSource="{Binding Orders}" SelectedItem="{Binding SelectedOrder}" 
+                                  AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+                                  Background="#131314" Foreground="#E0E0E0" HeadersVisibility="Column" BorderThickness="0" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#2A2A2B">
+                            <DataGrid.Resources>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#1F1F20"/>
+                                    <Setter Property="Foreground" Value="#999999"/>
+                                    <Setter Property="Padding" Value="10"/>
+                                </Style>
+                                <Style TargetType="DataGridRow">
+                                    <Setter Property="Background" Value="#131314"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#2A2A2B"/>
+                                            <Setter Property="Foreground" Value="#FFB3B1"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.Resources>
+                            <DataGrid.RowDetailsTemplate>
+                                <DataTemplate>
+                                    <Border Background="#1F1F20" Padding="15" Margin="10" CornerRadius="5" BorderBrush="#2A2A2B" BorderThickness="1">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10" Visibility="{Binding Address, Converter={StaticResource StringToVisibilityConverter}}">
+                                                <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[AddressLbl]}" Foreground="#999999"/>
+                                                <TextBlock Text="{Binding Address}" Foreground="#E0E0E0"/>
+                                            </StackPanel>
+                                            <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[OrderDetailsLbl]}" Foreground="#999999" FontWeight="Bold" Margin="0,0,0,10"/>
+                                            <ItemsControl ItemsSource="{Binding Items}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="0,0,0,5">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="2*"/>
+                                                                <ColumnDefinition Width="1*"/>
+                                                                <ColumnDefinition Width="1*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Foreground" Value="{Binding Deficit, Converter={StaticResource StockDeficitColorConverter}}"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding Deficit, Converter={StaticResource StockDeficitColorConverter}, ConverterParameter='IsDeficit'}" Value="True">
+                                                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                                <TextBlock.Text>
+                                                                    <MultiBinding Converter="{StaticResource LocalizedMaterialConverter}" ConverterParameter="Title">
+                                                                        <Binding Path="Material" />
+                                                                        <Binding Source="{x:Static services:TranslationSource.Instance}" Path="CurrentLanguage" />
+                                                                    </MultiBinding>
+                                                                </TextBlock.Text>
+                                                            </TextBlock>
+                                                            
+                                                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                                                <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[RequiredLbl]}" Foreground="#CCCCCC"/>
+                                                                <TextBlock Text="{Binding Quantity}" Foreground="#CCCCCC"/>
+                                                                <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[PcsLbl]}" Foreground="#CCCCCC"/>
+                                                            </StackPanel>
+                                                            
+                                                            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                                                <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[DeficitLbl]}" 
+                                                                           Foreground="{Binding Deficit, Converter={StaticResource StockDeficitColorConverter}}" 
+                                                                           FontWeight="Bold" 
+                                                                           Visibility="{Binding Deficit, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='hideIfZero'}"/>
+                                                                <TextBlock Text="{Binding Deficit}" 
+                                                                           Foreground="{Binding Deficit, Converter={StaticResource StockDeficitColorConverter}}" 
+                                                                           FontWeight="Bold" 
+                                                                           Visibility="{Binding Deficit, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='hideIfZero'}" 
+                                                                           Margin="5,0,0,0"/>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGrid.RowDetailsTemplate>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="Auto"/>
+                                <DataGridTextColumn Header="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[OrderDate]}" Binding="{Binding OrderDate, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}" Width="Auto"/>
+                                <DataGridTextColumn Header="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[Client]}" Binding="{Binding User.Username}" Width="1*"/>
+                                <DataGridTemplateColumn Header="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[Product]}" Width="2*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock VerticalAlignment="Center">
+                                                <TextBlock.Text>
+                                                    <MultiBinding Converter="{StaticResource LocalizedMaterialConverter}" ConverterParameter="OrderName">
+                                                        <Binding Path="." />
+                                                        <Binding Source="{x:Static services:TranslationSource.Instance}" Path="CurrentLanguage" />
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[Cost]}" Binding="{Binding TotalCost, StringFormat='{}{0} $'}" Width="Auto"/>
+                                <DataGridTextColumn Header="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[Status]}" Binding="{Binding Status, Converter={StaticResource OrderStatusConverter}}" Width="Auto"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+
+                    <Border Grid.Column="1" Background="#131314" CornerRadius="8" Padding="20" BorderBrush="#2A2A2B" BorderThickness="1" VerticalAlignment="Top">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[AdminActions]}" FontSize="18" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,0,15"/>
+                            
+                            <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[OrderStatusLbl]}" Foreground="#999999" Margin="0,0,0,5"/>
+                            <ComboBox ItemsSource="{Binding OrderStatuses}" SelectedItem="{Binding SelectedOrderStatus, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,15">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock>
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{StaticResource LanguageStringConverter}">
+                                                    <Binding Path="." />
+                                                    <Binding Source="{x:Static services:TranslationSource.Instance}" Path="CurrentLanguage" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[AssignMasterLbl]}" Foreground="#999999" Margin="0,0,0,5"/>
+                            <ComboBox ItemsSource="{Binding Executors}" SelectedItem="{Binding SelectedExecutor, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsServiceSelected}" Margin="0,0,0,15">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock>
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{StaticResource MasterNameConverter}">
+                                                    <Binding Path="." />
+                                                    <Binding Source="{x:Static services:TranslationSource.Instance}" Path="CurrentLanguage" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            
+                            <Button Content="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[SaveStatusBtn]}" Command="{Binding UpdateOrderStatusCommand}" Background="#3498DB" Foreground="White" FontWeight="Bold" Padding="15" Margin="0,0,0,20" BorderThickness="0" Cursor="Hand"/>
+                            
+                            <TextBlock Text="{Binding AdminOrderMessage}" Foreground="#FFB3B1" FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

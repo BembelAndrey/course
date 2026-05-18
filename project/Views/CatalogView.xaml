@@ -1,0 +1,161 @@
+<UserControl x:Class="project.Views.CatalogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:services="clr-namespace:project.Services"
+             xmlns:converters="clr-namespace:project.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1000"
+             Background="#131314">
+    <UserControl.Resources>
+        <converters:LocalizedMaterialConverter x:Key="LocalizedMaterialConverter" />
+        <converters:LanguageStringConverter x:Key="LanguageStringConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid Margin="30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[CatalogTitle]}" FontSize="28" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,0,20"/>
+
+            <!-- Фильтры и поиск -->
+            <Border Grid.Row="1" Background="#1F1F20" CornerRadius="8" Padding="15" Margin="0,0,0,25" BorderBrush="#2A2A2B" BorderThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[MatType]}" Foreground="#999999" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <ComboBox Grid.Column="1" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}" VerticalAlignment="Center" Foreground="#FFFFFF" Background="#131314">
+                        <ComboBox.ItemContainerStyle>
+                            <Style TargetType="ComboBoxItem">
+                                <Setter Property="Background" Value="#131314"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                                <Setter Property="BorderBrush" Value="#2A2A2B"/>
+                            </Style>
+                        </ComboBox.ItemContainerStyle>
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{StaticResource LanguageStringConverter}">
+                                            <Binding Path="." />
+                                            <Binding Source="{x:Static services:TranslationSource.Instance}" Path="CurrentLanguage" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <TextBlock Grid.Column="2" Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[Search]}" Foreground="#999999" VerticalAlignment="Center" Margin="30,0,10,0"/>
+                    <TextBox Grid.Column="3" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- Список товаров -->
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding FilteredMaterials}" HorizontalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel HorizontalAlignment="Center" ItemWidth="280" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="#1F1F20" BorderBrush="#2A2A2B" BorderThickness="1" CornerRadius="8" Margin="10" Padding="20">
+                                <StackPanel>
+                                    <Border Height="150" Background="#131314" CornerRadius="4" Margin="0,0,0,15">
+                                        <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}" Stretch="UniformToFill"/>
+                                    </Border>
+                                    <TextBlock FontSize="12" Foreground="#999999" Margin="0,0,0,8" TextWrapping="Wrap">
+                                        <TextBlock.Text>
+                                            <MultiBinding Converter="{StaticResource LocalizedMaterialConverter}" ConverterParameter="Category">
+                                                <Binding Path="." />
+                                                <Binding Source="{x:Static services:TranslationSource.Instance}" Path="CurrentLanguage" />
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                    <TextBlock FontSize="16" FontWeight="Bold" Foreground="#E0E0E0" TextWrapping="Wrap" Height="45" Margin="0,0,0,10">
+                                        <TextBlock.Text>
+                                            <MultiBinding Converter="{StaticResource LocalizedMaterialConverter}" ConverterParameter="Title">
+                                                <Binding Path="." />
+                                                <Binding Source="{x:Static services:TranslationSource.Instance}" Path="CurrentLanguage" />
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding Price, StringFormat='{}{0} $'}" FontSize="20" FontWeight="Bold" Foreground="#FFB3B1" Margin="0,0,0,5"/>
+                                    
+                                    <!-- Количество на складе -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                        <TextBlock Text="{Binding DataContext.Loc[StockLbl], RelativeSource={RelativeSource AncestorType=ItemsControl}}" Foreground="#999999" Margin="0,0,5,0"/>
+                                        <TextBlock Text="{Binding StockQuantity}" Foreground="#E0E0E0" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    
+                                    <UniformGrid Columns="2">
+                                        <Button Content="{Binding DataContext.Loc[Details], RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                                Command="{Binding DataContext.GoToDetailCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                                CommandParameter="{Binding}" 
+                                                Background="Transparent" BorderBrush="#FFB3B1" BorderThickness="1" Foreground="#FFB3B1" FontWeight="SemiBold" Padding="10,8" Cursor="Hand" Margin="0,0,5,0">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="#FFB3B1"/>
+                                                            <Setter Property="Foreground" Value="#131314"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                        
+                                        <Button Content="{Binding DataContext.Loc[AddToCartBtn], RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                                Command="{Binding DataContext.OpenQuickBuyCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                                CommandParameter="{Binding}" 
+                                                Style="{StaticResource AccentButton}" Padding="10,8" Margin="5,0,0,0"/>
+                                    </UniformGrid>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Quick Buy Overlay -->
+        <Grid Visibility="{Binding IsQuickBuyOpen, Converter={StaticResource BooleanToVisibilityConverter}}" Background="#CC000000">
+            <Border Background="#1F1F20" CornerRadius="8" Padding="30" BorderBrush="#2A2A2B" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="400">
+                <Grid>
+                    <Button Content="X" Command="{Binding CloseQuickBuyCommand}" HorizontalAlignment="Right" VerticalAlignment="Top" Background="Transparent" Foreground="#999999" BorderThickness="0" FontWeight="Bold" Cursor="Hand" Margin="0,-15,-15,0" Width="30" Height="30"/>
+                    
+                    <StackPanel Margin="0,15,0,0">
+                        <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[AddToCartTitle]}" FontSize="20" FontWeight="Bold" Foreground="#FFB3B1" Margin="0,0,0,20" TextAlignment="Center"/>
+                        <TextBlock Foreground="#FFFFFF" FontWeight="Bold" TextWrapping="Wrap" Margin="0,0,0,15" TextAlignment="Center">
+                            <TextBlock.Text>
+                                <MultiBinding Converter="{StaticResource LocalizedMaterialConverter}" ConverterParameter="Title">
+                                    <Binding Path="QuickBuyMaterial" />
+                                    <Binding Source="{x:Static services:TranslationSource.Instance}" Path="CurrentLanguage" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                        
+                        <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[Qty]}" Foreground="#999999" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding QuickBuyQuantityText, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,20"/>
+
+                        <Button Content="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[AddToCartBtn]}" Command="{Binding ConfirmQuickBuyCommand}" Style="{StaticResource AccentButton}" Margin="0,0,0,10"/>
+                        <Button Content="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[Cancel]}" Command="{Binding CloseQuickBuyCommand}" Background="Transparent" Foreground="#999999" BorderThickness="0" Cursor="Hand" Margin="0,0,0,15"/>
+
+                        <TextBlock Text="{Binding QuickBuyMessage}" Foreground="#FFB3B1" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

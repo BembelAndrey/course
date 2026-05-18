@@ -1,0 +1,72 @@
+<UserControl x:Class="project.Views.CalculatorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:services="clr-namespace:project.Services"
+             xmlns:converters="clr-namespace:project.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1000"
+             Background="#131314">
+    <UserControl.Resources>
+        <converters:LanguageStringConverter x:Key="LanguageStringConverter" />
+    </UserControl.Resources>
+    <Grid Margin="30" VerticalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[CalcTitle]}" FontSize="28" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,0,30" HorizontalAlignment="Center"/>
+
+        <Border Grid.Row="1" Background="#1F1F20" CornerRadius="10" Padding="40" BorderBrush="#2A2A2B" BorderThickness="1" HorizontalAlignment="Center" Width="500">
+            <StackPanel>
+                <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[SurfaceType]}" FontSize="14" Foreground="#999999" Margin="0,0,0,8"/>
+                <ComboBox ItemsSource="{Binding SurfaceTypes}" SelectedItem="{Binding SelectedSurfaceType, UpdateSourceTrigger=PropertyChanged}" FontSize="16" Margin="0,0,0,25">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <MultiBinding Converter="{StaticResource LanguageStringConverter}">
+                                        <Binding Path="." />
+                                        <Binding Source="{x:Static services:TranslationSource.Instance}" Path="CurrentLanguage" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[WorkLevel]}" FontSize="14" Foreground="#999999" Margin="0,0,0,8"/>
+                <ComboBox ItemsSource="{Binding WorkLevels}" SelectedItem="{Binding SelectedWorkLevel, UpdateSourceTrigger=PropertyChanged}" FontSize="16" Margin="0,0,0,25">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <MultiBinding Converter="{StaticResource LanguageStringConverter}">
+                                        <Binding Path="." />
+                                        <Binding Source="{x:Static services:TranslationSource.Instance}" Path="CurrentLanguage" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[AreaLbl]}" FontSize="14" Foreground="#999999" Margin="0,0,0,8"/>
+                <TextBox Text="{Binding AreaText, UpdateSourceTrigger=PropertyChanged}" FontSize="16" Padding="8" Margin="0,0,0,35"/>
+
+                <Border Background="#131314" Padding="20" CornerRadius="8" Margin="0,0,0,30" BorderBrush="#444444" BorderThickness="1">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[TotalCostLbl]}" FontSize="18" Foreground="#CCCCCC" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding TotalCost, StringFormat='{}{0} $'}" FontSize="24" FontWeight="Bold" Foreground="#FFB3B1" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <Button Content="{Binding Source={x:Static services:TranslationSource.Instance}, Path=[OrderServiceBtn]}" Command="{Binding OrderServiceCommand}" Style="{StaticResource AccentButton}" Margin="0,0,0,15"/>
+                
+                <TextBlock Text="{Binding OrderMessage}" Foreground="#FFB3B1" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
